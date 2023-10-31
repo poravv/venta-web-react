@@ -1,0 +1,63 @@
+{
+  "name": "empy-front",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "http://academico.cinae.mil.py/",
+  "dependencies": {
+    "@ant-design/icons": "^4.8.0",
+    "@ant-design/plots": "^1.2.2",
+    "@react-pdf/renderer": "^3.1.9",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "ant-design": "^1.0.0",
+    "antd": "^5.0.2",
+    "antd-img-crop": "^4.5.2",
+    "axios": "^1.2.0",
+    "bootstrap": "^5.2.3",
+    "buffer": "^6.0.3",
+    "chart.js": "^4.3.0",
+    "dayjs": "^1.11.7",
+    "jspdf": "^2.5.1",
+    "moment": "^2.29.4",
+    "react": "^18.2.0",
+    "react-autosuggest": "^10.1.0",
+    "react-bootstrap": "^2.6.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.2.0",
+    "react-highlight-words": "^0.18.0",
+    "react-icons": "^4.6.0",
+    "react-infinite-scroll-component": "^6.1.0",
+    "react-router-dom": "^6.4.3",
+    "react-scripts": "^5.0.1",
+    "sheetjs-style": "^0.15.8",
+    "web-vitals": "^2.1.4",
+    "xlsx": "^0.18.5",
+    "xlsx-js-style": "^1.2.0",
+    "xlsx-populate": "^1.21.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
