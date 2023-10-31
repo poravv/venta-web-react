@@ -41,7 +41,7 @@ function NuevoVenta({ token }) {
             array.push(prod)
             return true;
         })
-        console.log(array)
+        //console.log(array)
         setLstProductoFinal(array);
     }
 
@@ -81,7 +81,7 @@ function NuevoVenta({ token }) {
         };
 
         guardaVentaCab(json).then((cabecera) => {
-            console.log(cabecera)
+            //console.log(cabecera)
             if (cabecera.estado !== 'error') {
                 tblventatmp.map((detventa) => {
                     guardaVentaDet({
@@ -155,7 +155,7 @@ function NuevoVenta({ token }) {
             operacion: 'venta',
             cantidad: cantidad,
         }).then((res) => {
-            console.log(res)
+            //console.log(res)
             if (res?.estado !== 'error') {
                 tblventatmp.push({
                     idproducto_final: producto_finalSelected.idproducto_final,
@@ -176,7 +176,7 @@ function NuevoVenta({ token }) {
                 message.warning('Error en verificacion de cantidades de stock base de datos')
             }
         });
-        console.log(tblventatmp)
+        //console.log(tblventatmp)
     }
 
     const btnCancelar = (e) => {
@@ -240,7 +240,7 @@ function NuevoVenta({ token }) {
     return (
         <div>
             <div style={{ marginBottom: `20px` }}>
-                <Titulos text={`NUEVA PRODUCTO`} level={3}></Titulos>
+                <Titulos text={`NUEVA VENTA`} level={3}></Titulos>
             </div>
             <Form
                 initialValues={{ remember: true, }}
