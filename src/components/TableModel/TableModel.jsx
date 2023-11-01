@@ -43,7 +43,7 @@ function TableModel({ token, form, data, mergedColumns, keyExtraido, varx,ciudad
           <td {...restProps}>
             {
               editing ? (
-                <Form.Item name={dataIndex} style={{ margin: 0, }} rules={[{ required: true, message: `Por favor complete ${title}!`, },]} >
+                <Form.Item name={dataIndex} style={{ margin: 0, }}  >
                   <Select allowClear > <Option value="MA">Masculino</Option> <Option value="FE">Femenino</Option> </Select>
                 </Form.Item>
               ) : (children)

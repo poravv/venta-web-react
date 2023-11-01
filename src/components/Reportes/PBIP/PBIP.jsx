@@ -72,7 +72,7 @@ function PBIP({ token }) {
     const getLstConvocatoria = async () => {
         let array = [];
         const res = await getConvocatoria({ token: token, anho1: fecha1 ?? 0, anho2: fecha2 ?? 0, estado: estado ?? 0 });
-        res.body.map((conv) => {
+        res?.body?.map((conv) => {
             //conv.descripcion=conv.planificacion.curso.descripcion+' - '+conv.turno.descripcion;
             array.push(conv);
             return true;
@@ -89,7 +89,7 @@ function PBIP({ token }) {
     const getLstInscripcion = async (idconvocatoria) => {
         let array = []
         const res = await getInscripcionConv({ token: token, param: idconvocatoria });
-        res.body.map((inscripcion) => {
+        res?.body?.map((inscripcion) => {
             inscripcion.datos = `${inscripcion.persona.nombre} ${inscripcion.persona.apellido} ${inscripcion.persona.documento}`;
             array.push(inscripcion);
             return true;

@@ -117,7 +117,23 @@ function ListaCliente({ token }) {
             dataIndex: 'tipo_cli',
             //width: '22%',
             editable: false,
+            sortDirections: ['descend', 'ascend'],
+            sorter: (a, b) => a.tipo_cli.localeCompare(b.tipo_cli),
             ...BuscadorTabla('tipo_cli'),
+            render: (_, { tipo_cli }) => {
+                if (tipo_cli) {
+                    let color = 'black';
+                    if (tipo_cli?.toUpperCase() === 'F') { color = 'green' }
+                    else { color = 'orange'; }
+                    return (
+                        <Tag color={color} key={0} >
+                            {tipo_cli?.toUpperCase() === 'F' ? 'Físico' : 'Jurídico'}
+                        </Tag>
+                    );
+                } else {
+                    return null;
+                }
+            },
         },
         {
             title: 'Correo',
@@ -274,7 +290,7 @@ function ListaCliente({ token }) {
                 <Button type="primary" onClick={() => navigate('/crearcliente')} >{<PlusOutlined />} Nuevo</Button>
                 <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={() => handleExport({ data: data, title: 'Clientes' })} size={20} /></Button>
             </div>
-            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idcliente'} varx={2500} ciudades={ciudades} />
+            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idcliente'} varx={1000} ciudades={ciudades} />
         </>
     )
 }

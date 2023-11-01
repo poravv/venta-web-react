@@ -8,14 +8,14 @@ import { ConfigProvider } from 'antd';
 import { FloatButton } from 'antd';
 import { getSucursalById } from './services/Sucursal'
 import { IoMoonOutline, IoColorWandSharp, IoSunnyOutline } from "react-icons/io5";
-//import { Logout } from './services/Login';
 
 function App() {
-  const loggedUserJSON=window.localStorage.getItem('loggedUser')??null;
+  const loggedUserJSON = window.localStorage.getItem('loggedUser') ?? null;
   const userJson = JSON.parse(loggedUserJSON);
-  const [userApp, setUserApp] = useState(userJson??null);
+  const [userApp, setUserApp] = useState(userJson ?? null);
   const [sucursal, setSucursal] = useState(null);
-  
+
+
   const { darkAlgorithm, defaultAlgorithm } = theme;
   const dark = {
     algorithm: [darkAlgorithm],
@@ -26,7 +26,7 @@ function App() {
       colorBgBase: `#060f18`
     }
   }
-  
+
   const normal = {
     token: {
       defaultAlgorithm,
@@ -53,22 +53,26 @@ function App() {
       setSucursal(res);
     } //else { Logout();}
   }
- 
+
   return (
     <>
       <ConfigProvider
         theme={temaSeleccionado}>
         {
-          userApp ? <ConfigBrows usuario={userApp??null} sucursal={sucursal} /> : <LoginForm />
+          userApp ? <ConfigBrows usuario={userApp ?? null} sucursal={sucursal} /> : <LoginForm />
         }
       </ConfigProvider>
-      <FloatButton.Group icon={< IoColorWandSharp />}
-        type="primary"
-        trigger="click"
-      >
-        <FloatButton style={{ color: `red` }} onClick={() => setTemaSeleccionado(normal)} icon={<IoSunnyOutline />} />
-        <FloatButton onClick={() => setTemaSeleccionado(dark)} icon={<IoMoonOutline />} />
-      </FloatButton.Group>
+      <>
+        <FloatButton.Group icon={< IoColorWandSharp />}
+          type="primary"
+          shape="square"
+          trigger="click"
+        >
+          <FloatButton style={{ color: `red` }} onClick={() => setTemaSeleccionado(normal)} icon={<IoSunnyOutline />} />
+          <FloatButton onClick={() => setTemaSeleccionado(dark)} icon={<IoMoonOutline />} />
+        </FloatButton.Group>
+        
+      </>
     </>
   );
 }

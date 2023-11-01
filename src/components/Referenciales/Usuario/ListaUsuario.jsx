@@ -29,7 +29,7 @@ const ListaUsuario = ({ token }) => {
         let array = [];
         const res = await getUsuario({ token: token });
         console.log(res.body)
-        res.body.map((usuario) => {
+        res?.body?.map((usuario) => {
             usuario.nombre = usuario?.persona?.nombre;
             usuario.passwordAnterior = usuario?.password;
             usuario.apellido = usuario?.persona?.apellido;
@@ -82,10 +82,9 @@ const ListaUsuario = ({ token }) => {
             render: (_, { nivel }) => {
                 switch (nivel) {
                     case 0: return 'Root';
-                    case 1: return 'Admin'
-                    case 2: return 'Academico'
-                    case 3: return 'Instructor'
-                    case 4: return 'Estudiante'
+                    case 1: return 'Sys Admin'
+                    case 2: return 'Vendedor'
+                    case 3: return 'Administrador'
                     default: return 'No definido'
                 }
             },
@@ -276,7 +275,7 @@ const ListaUsuario = ({ token }) => {
                 <Button type="primary" onClick={() => navigate('/crearusuario')} >{<PlusOutlined />} Nuevo</Button>
                 <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={()=>handleExport({data:data,title:'Usuarios'})} size={20} /></Button>
             </div>
-            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idusuario'} varx={1500} />
+            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idusuario'} varx={900} />
         </>
     )
 }

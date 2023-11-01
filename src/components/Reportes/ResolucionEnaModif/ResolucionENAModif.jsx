@@ -53,7 +53,7 @@ function ResolucionENAModif({ token }) {
     const getLstConvocatoria = async () => {
         let array = [];
         const res = await getConvocatoria({ token: token, anho1: fecha1 ?? 0, anho2: fecha2 ?? 0, estado: estado ?? 0 });
-        res.body.map((conv) => {
+        res?.body?.map((conv) => {
             //conv.descripcion=conv.planificacion.curso.descripcion+' - '+conv.turno.descripcion;
             array.push(conv);
             return true;
@@ -123,7 +123,7 @@ function ResolucionENAModif({ token }) {
         try {
             let array = [];
             await getestudiantes({ token: token, idconvocatoria: idconvocatoria }).then((res) => {
-                res.body.map((rep) => {
+                res?.body?.map((rep) => {
                     array.push(rep);
                     return true;
                 });

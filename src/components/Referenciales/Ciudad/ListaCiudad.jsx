@@ -198,7 +198,7 @@ const ListaCiudad = ({ token }) => {
                 <Button type="primary" onClick={() => navigate('/crearciudad')} >{<PlusOutlined />} Nuevo</Button>
                 <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={() => handleExport({ data: data, title: 'Ciudad' })} size={20} /></Button>
             </div>
-            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idciudad'} />
+            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idciudad'} varx={300} />
         </>
     )
 }

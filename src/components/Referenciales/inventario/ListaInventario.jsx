@@ -5,17 +5,18 @@ import { Form } from 'antd';
 import TableModel from '../../TableModel/TableModel';
 import { Tag } from 'antd';
 import { message } from 'antd';
-import {  PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import { Button, Image } from 'antd';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line } from "react-icons/ri";
 import { getInventarioSucursal, updateInventario } from '../../../services/Inventario';
-import {Titulos} from '../../Utils/Titulos';
+import { Titulos } from '../../Utils/Titulos';
+import { BuscadorTabla } from '../../Utils/Buscador/BuscadorTabla'
 import { Buffer } from 'buffer'
 import { agregarSeparadorMiles } from '../../Utils/separadorMiles';
 
 let fechaActual = new Date();
-const ListaInventario = ({ token,idproducto }) => {
+const ListaInventario = ({ token, idproducto }) => {
 
     const [form] = Form.useForm();
     const [data, setData] = useState([]);
@@ -29,9 +30,15 @@ const ListaInventario = ({ token,idproducto }) => {
     }, []);
 
     const getLstInventario = async () => {
-        const res = await getInventarioSucursal({token:token,param:'get'});
+        const array = [];
+        const res = await getInventarioSucursal({ token: token, param: 'get' });
+        res?.body?.map((inv) => {
+            inv.descripcion = inv.producto?.descripcion;
+            array.push(inv)
+            return true;
+        })
         //console.log(res.body)
-        setData(res.body);
+        setData(array);
     }
 
     const handleDelete = async (id) => {
@@ -46,7 +53,7 @@ const ListaInventario = ({ token,idproducto }) => {
     }
 
     const handleUpdate = async (newData) => {
-        await updateInventario({token:token,param:newData.idproducto,json:newData}).then((res) => {
+        await updateInventario({ token: token, param: newData.idproducto, json: newData }).then((res) => {
             if (res?.estado !== 'error') {
                 getLstInventario();
                 message.success(res?.mensaje);
@@ -54,18 +61,18 @@ const ListaInventario = ({ token,idproducto }) => {
                 message.error(res?.mensaje);
             }
         });
-        
+
     }
 
     const columns = [
         {
             title: 'Producto',
-            dataIndex: 'idproducto_final',
+            dataIndex: 'descripcion',
             //width: '12%',
             editable: false,
-            render: (_, render ) => {
-                return render?.producto?.descripcion
-        }
+            sortDirections: ['descend', 'ascend'],
+            sorter: (a, b) => a?.descripcion.localeCompare(b?.descripcion),
+            ...BuscadorTabla('descripcion'),
         },
         {
             title: 'Precio',
@@ -74,8 +81,8 @@ const ListaInventario = ({ token,idproducto }) => {
             editable: false,
             sortDirections: ['descend', 'ascend'],
             sorter: (a, b) => a?.producto.precio.localeCompare(b?.producto.precio),
-            render: (_, res ) => {
-                    return agregarSeparadorMiles(parseInt(res?.producto?.precio))
+            render: (_, res) => {
+                return agregarSeparadorMiles(parseInt(res?.producto?.precio))
                 //return res?.precio
             }
         },
@@ -84,21 +91,19 @@ const ListaInventario = ({ token,idproducto }) => {
             dataIndex: 'cantidad_total',
             //width: '12%',
             editable: false,
-            sortDirections: ['descend', 'ascend'],
         },
         {
             title: 'Cantidad vendida',
             dataIndex: 'cantidad_ven',
             //width: '12%',
             editable: false,
-            sortDirections: ['descend', 'ascend'],
         },
         {
             title: 'Imagen',
             dataIndex: 'img',
             width: '15%',
             editable: false,
-            render: (_,  render ) => {
+            render: (_, render) => {
                 const img = render?.producto?.img;
                 //console.log(img)
                 if (img && typeof img !== "string") {
@@ -108,15 +113,15 @@ const ListaInventario = ({ token,idproducto }) => {
                     if (asciiTraducido) {
                         return (
                             <Image
-                                style={{  borderRadius: `4px`,width:`60px` }}
+                                style={{ borderRadius: `4px`, width: `60px` }}
                                 alt="imagen"
                                 //preview={false}
                                 //style={{ width: '50%',margin:`0px`,textAlign:`center` }}
                                 src={asciiTraducido}
                             />
                         );
-                    } 
-                } 
+                    }
+                }
             },
         },
         {
@@ -124,6 +129,8 @@ const ListaInventario = ({ token,idproducto }) => {
             dataIndex: 'estado',
             width: '10%',
             editable: true,
+            sortDirections: ['descend', 'ascend'],
+            sorter: (a, b) => a?.estado.localeCompare(b?.estado),
             render: (_, { estado, idproducto }) => {
                 let color = 'black';
                 if (estado.toUpperCase() === 'AC') { color = 'green' }
@@ -219,7 +226,7 @@ const ListaInventario = ({ token,idproducto }) => {
                 //console.log(newData);
                 handleUpdate(newData[index]);
                 setData(newData);
-                setEditingKey('');                
+                setEditingKey('');
             } else {
                 newData.push(row);
                 setData(newData);
@@ -253,9 +260,9 @@ const ListaInventario = ({ token,idproducto }) => {
             <Titulos text={`INVENTARIO`} level={3}></Titulos>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
                 <Button type="primary" onClick={() => navigate('/crearinventario')} >{<PlusOutlined />} Nuevo</Button>
-                <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={()=>handleExport({data:data,title:'Producto'})} size={20} /></Button>
+                <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={() => handleExport({ data: data, title: 'Producto' })} size={20} /></Button>
             </div>
-            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idinventario'} />
+            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idinventario'} varx={300}/>
         </>
     )
 }

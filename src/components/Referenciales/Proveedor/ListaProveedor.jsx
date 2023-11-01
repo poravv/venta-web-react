@@ -225,7 +225,7 @@ const ListaProveedor = ({ token }) => {
                 <Button type="primary" onClick={() => navigate('/crearproveedor')} >{<PlusOutlined />} Nuevo</Button>
                 <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={() => handleExport({ data: data, title: 'Proveedor' })} size={20} /></Button>
             </div>
-            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idproveedor'} />
+            <TableModel mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idproveedor'} varx={400}/>
         </>
     )
 }

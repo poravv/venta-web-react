@@ -95,7 +95,7 @@ const ListaArticulo = ({ token,idproducto }) => {
             //width: '12%',
             editable: false,
             sortDirections: ['descend', 'ascend'],
-            sorter: (a, b) => a.idproveedor.localeCompare(b.idproveedor),
+            sorter: (a, b) => a.proveedor.razon_social.localeCompare(b.proveedor.razon_social),
             render: (_, res ) => {
                 return res?.proveedor.razon_social
             }
@@ -125,10 +125,30 @@ const ListaArticulo = ({ token,idproducto }) => {
             },
         },
         {
+            title: 'Creación',
+            dataIndex: 'fecha_insert',
+            //width: '12%',
+            editable: false,
+            sortDirections: ['descend', 'ascend'],
+            sorter: (a, b) => a.fecha_insert.localeCompare(b.fecha_insert),
+            
+        },
+        {
+            title: 'Actualización',
+            dataIndex: 'fecha_upd',
+            //width: '12%',
+            editable: false,
+            sortDirections: ['descend', 'ascend'],
+            sorter: (a, b) => a.fecha_upd.localeCompare(b.fecha_upd),
+            
+        },
+        {
             title: 'Estado',
             dataIndex: 'estado',
             width: '10%',
             editable: true,
+            sortDirections: ['descend', 'ascend'],
+            sorter: (a, b) => a.estado.localeCompare(b.estado),
             render: (_, { estado, idproducto }) => {
                 let color = 'black';
                 if (estado.toUpperCase() === 'AC') { color = 'green' }
@@ -195,7 +215,6 @@ const ListaArticulo = ({ token,idproducto }) => {
     };
 
     const confirmDel = (idproducto) => {
-        message.success('Procesando');
         handleDelete(idproducto);
     };
 
@@ -258,7 +277,8 @@ const ListaArticulo = ({ token,idproducto }) => {
             <Titulos text={`ARTICULO`} level={3}></Titulos>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
                 <Button type="primary" onClick={() => navigate('/creararticulo')} >{<PlusOutlined />} Nuevo</Button>
-                <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={()=>handleExport({data:data,title:'Producto'})} size={20} /></Button>
+                <Button type="primary" style={{ background:`orange`, margin: `2px` }} onClick={() => navigate('/creararticuloproducto')} >{<PlusOutlined />} Producción</Button>
+                <Button type='primary' style={{ backgroundColor: `#08AF17` }}  ><RiFileExcel2Line onClick={()=>handleExport({data:data,title:'Producto'})} size={20} /></Button>
             </div>
             <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idproducto'} />
         </>

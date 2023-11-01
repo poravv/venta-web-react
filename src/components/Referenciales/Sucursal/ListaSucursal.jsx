@@ -234,7 +234,7 @@ const ListaSucursal = ({ token, idsucursal }) => {
                 <Button type="primary" onClick={() => navigate('/crearsucursal')} >{<PlusOutlined />} Nuevo</Button>
                 <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={() => handleExport({ data: data, title: 'Escuelas' })} size={20} /></Button>
             </div>
-            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idsucursal'} ciudades={ciudades} />
+            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idsucursal'} ciudades={ciudades} varx={400} />
         </>
     )
 }

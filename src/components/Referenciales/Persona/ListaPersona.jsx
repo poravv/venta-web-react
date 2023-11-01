@@ -301,7 +301,7 @@ function ListaPersona({ token }) {
                 <Button type="primary" onClick={() => navigate('/crearpersona')} >{<PlusOutlined />} Nuevo</Button>
                 <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={() => handleExport({ data: data, title: 'Personas' })} size={20} /></Button>
             </div>
-            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idpersona'} varx={2500} ciudades={ciudades} />
+            <TableModel token={token} mergedColumns={mergedColumns} data={data} form={form} keyExtraido={'idpersona'} varx={1000} ciudades={ciudades} />
         </>
     )
 }

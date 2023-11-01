@@ -1,16 +1,20 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from "react-router-dom";
-import { Button, Form, Input, Divider } from 'antd';
+import { Button, Form, Input, Divider, Popconfirm, Checkbox } from 'antd';
 import Buscador from '../../Utils/Buscador/Buscador';
-import { Row, Col, message } from 'antd';
+import { Row, Col, message, Modal } from 'antd';
 import { IoTrashOutline } from 'react-icons/io5';
 import Table from 'react-bootstrap/Table';
 import { getProductoVenta } from '../../../services/ProductoFinal';
 import { getCliente } from '../../../services/Cliente';
 import { createVenta, createVentaDet, operacionVenta } from '../../../services/Venta';
 import { Titulos } from '../../Utils/Titulos';
+import { agregarSeparadorMiles } from '../../Utils/separadorMiles';
+import { generaTicket } from '../../Reportes/Ticket/ExportTicketPdf';
+let fechaActual = new Date();
 
 function NuevoVenta({ token }) {
+    const strFecha = fechaActual.getFullYear() + "-" + (fechaActual.getMonth() + 1) + "-" + fechaActual.getDate();
     const [form] = Form.useForm();
     const [idproducto_final, setIdproducto_final] = useState();
     const [producto_finalSelected, setProductoFinalSelected] = useState(null);
@@ -23,6 +27,25 @@ function NuevoVenta({ token }) {
     const [idcliente, setIdcliente] = useState(null);
     const [totalIva, setTotalIva] = useState(0);
     const [descuento, setDescuento] = useState(0);
+    const [vuelto, setVuelto] = useState(0);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [checkTicket, setCheckTicket] = useState(false);
+
+
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleCheckTicket = (e) => {
+        //console.log(`checked = ${e.target.checked}`);
+        setCheckTicket(e.target.checked)
+    };
 
     const navigate = useNavigate();
 
@@ -32,23 +55,61 @@ function NuevoVenta({ token }) {
         // eslint-disable-next-line
     }, []);
 
+    const onchangeCobro = (e) => {
+        //.target.value
+        setVuelto(parseInt(e.target.value) - parseInt(total))
+    }
+
+
+    const ventanaCobro = () => {
+        return (
+            <Modal
+                title="Cobro"
+                open={isModalOpen}
+                onOk={gestionGuardado}
+                onCancel={handleCancel}>
+                <Form layout="vertical">
+                    <Row>
+                        <Checkbox onChange={handleCheckTicket}>Imprimir ticket</Checkbox>
+                    </Row>
+                    <Row style={{ textAlign: `center`, justifyContent: `center` }}>
+                        <Col>
+                            <Form.Item label='Monto a cobrar'>
+                                <Input disabled value={agregarSeparadorMiles(parseInt(total))} />
+                            </Form.Item>
+                        </Col>
+                        <Col style={{ marginLeft: `2rem` }}>
+                            <Form.Item
+                                label='Monto dinero'>
+                                <Input type='number' onChange={(e) => onchangeCobro(e)} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row style={{ textAlign: `center`, justifyContent: `center` }}>
+                        <Col style={{ marginLeft: `2rem` }}>
+                            <p style={{ color: `red`, fontSize: `30px` }}>Vuelto= {agregarSeparadorMiles(parseInt(vuelto))}</p>
+                        </Col>
+                    </Row>
+                </Form>
+            </Modal>
+        );
+    }
 
     const getLstProductoFinal = async () => {
         const array = [];
         const res = await getProductoVenta({ token: token, param: 'get' });
-        res.body.map((prod) => {
+        res?.body?.map((prod) => {
             prod.monto_iva = ((parseInt(prod.tipo_iva) * parseInt(prod.costo)) / 100);
             array.push(prod)
             return true;
         })
-        //console.log(array)
         setLstProductoFinal(array);
     }
 
     const getLstClientes = async () => {
         const array = [];
         const res = await getCliente({ token: token, param: 'get' });
-        res.body.map((cli) => {
+        res?.body?.map((cli) => {
             cli.descripcion = (cli.razon_social + ' / ' + cli.ruc);
             array.push(cli)
             return true;
@@ -70,7 +131,7 @@ function NuevoVenta({ token }) {
     const gestionGuardado = async () => {
         //e.preventDefault();
         //Validaciones
-        if (tblventatmp.length <= 0) { message.error('Cargue detalles'); return; }
+        if (tblventatmp.length <= 0) { message.error('No ha cargado ningun producto'); return; }
         const json = {
             idcliente: idcliente,
             nro_comprobante: 0,
@@ -78,10 +139,13 @@ function NuevoVenta({ token }) {
             total: total,
             estado: 'AC',
             costo_envio: 0,
+            fecha: strFecha
         };
-
         guardaVentaCab(json).then((cabecera) => {
             //console.log(cabecera)
+            cabecera.body.razon_social = clienteSelected.razon_social;
+            cabecera.body.ruc = clienteSelected.ruc;
+            
             if (cabecera.estado !== 'error') {
                 tblventatmp.map((detventa) => {
                     guardaVentaDet({
@@ -95,17 +159,23 @@ function NuevoVenta({ token }) {
                         if (det.estado !== 'error') {
                             message.success(det?.mensaje);
                             //Aqui confirma la venta y libera la base temporal de reserva de producto
-                            operacionVenta({token,idproducto_final:det?.body?.idproducto_final,operacion:'procesado',cantidad:0})
+                            operacionVenta({ token, idproducto_final: det?.body?.idproducto_final, operacion: 'procesado', cantidad: 0 })
                         } else {
                             message.success('Cabecera almacenada');
                             message.error(det?.mensaje);
                         }
                     });
-                    setTimeout(() => {}, 4000);
+                    setTimeout(() => { }, 4000);
                     return true;
-                })
+                });
+                /*******
+                 * Aqui cierra la ventana de cobro
+                 * ******/
 
+                handleOk()
+                if (checkTicket) { generaTicket({ cabecera: cabecera.body, detalle: tblventatmp }) }
                 navigate('/venta');
+
             } else {
                 message.error(cabecera?.mensaje);
             }
@@ -122,13 +192,11 @@ function NuevoVenta({ token }) {
             message.warning('Selecciona un producto');
             return;
         }
-        if(parseInt(descuento)!==0){
-            if (descuento > 0 &&descuento < 1000) {message.warning('Verifique descuento');return;}
+        if (parseInt(descuento) !== 0) {
+            if (descuento < 0 || descuento < 1000) { message.warning('Verifique descuento'); return; }
         }
-        
-        
 
-        if (cantidad === 0 && cantidad === null && cantidad === '') {
+        if (parseInt(cantidad) === 0 || cantidad === null || cantidad === '') {
             message.warning('Cargue la cantidad de producto');
             return;
         }
@@ -242,9 +310,14 @@ function NuevoVenta({ token }) {
             <div style={{ marginBottom: `20px` }}>
                 <Titulos text={`NUEVA VENTA`} level={3}></Titulos>
             </div>
+
+            {
+                //Ventana de vuelteo
+                ventanaCobro()
+            }
             <Form
                 initialValues={{ remember: true, }}
-                onFinish={gestionGuardado}
+                //onFinish={gestionGuardado}
                 autoComplete="off"
                 name="basic"
                 layout="vertical"
@@ -277,7 +350,7 @@ function NuevoVenta({ token }) {
                             {idproducto_final ?
                                 <Input id='idproducto' name='idproducto' disabled value={idproducto_final} />
                                 : null}
-                            <Buscador label={'descripcion'} title={'Producto'} selected={idproducto_final} value={'idproducto_final'} data={lstProductoFinal} onChange={onChangeProductoFinal} onSearch={onSearch} />
+                            <Buscador label={'nombre'} title={'Producto'} selected={idproducto_final} value={'idproducto_final'} data={lstProductoFinal} onChange={onChangeProductoFinal} onSearch={onSearch} />
                         </Form.Item>
                     </Col>
                     <Col style={{ minWidth: `25rem` }}>
@@ -293,15 +366,14 @@ function NuevoVenta({ token }) {
                 </Row>
                 <Row style={{ justifyContent: `center` }}>
                     <Col style={{ marginBottom: `10px` }}>
-                        <Button type="primary" htmlType="submit" onClick={(e) => agregarLista(e)} >
+                        <Button type="primary" htmlType="submit" ghost onClick={(e) => agregarLista(e)} >
                             Agregar
                         </Button>
                     </Col>
                 </Row>
                 <Row style={{ alignItems: `center`, justifyContent: `center`, margin: `0px`, display: `flex` }}>
-
-                    <Table striped bordered hover>
-                        <thead className='table-primary'>
+                    <Table style={{ backgroundColor: `white` }}>
+                        <thead style={{ backgroundColor: `#03457F`, color: `white` }}>
                             <tr>
                                 <th>Producto</th>
                                 <th>Costo</th>
@@ -347,13 +419,21 @@ function NuevoVenta({ token }) {
                             </tr>
                         </tfoot>
                     </Table>
-                    <Col >
-                        <Button type="primary" htmlType="submit" style={{ margin: `10px` }} >
-                            Guardar
+                    <Col>
+                        <Button type="primary" htmlType="submit" style={{ margin: `10px` }} onClick={() => showModal()} >
+                            Procesar
                         </Button>
-                        <Button type="primary" htmlType="submit" onClick={btnCancelar}  >
-                            Cancelar
-                        </Button>
+                        <Popconfirm
+                            title="Esta seguro que desea cancelar?"
+                            onConfirm={btnCancelar}
+                            //onCancel={cancel}
+                            okText="Si"
+                            cancelText="No" >
+                            <Button type="primary" danger ghost htmlType="submit"  >
+                                Cancelar
+                            </Button>
+                        </Popconfirm>
+
                     </Col>
                 </Row>
             </Form>

@@ -8,7 +8,6 @@ export const handleExport = ({data,title}) => {
 }
 
 export const handleExportTitle = ({title,cabecera,array}) => {
-    
     const sheet = XLSX.utils.json_to_sheet([{}], {
         header: ['Convocatoria'],//origin:'A1:P1'
     });

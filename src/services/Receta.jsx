@@ -71,6 +71,6 @@ export const createReceta  = async ({token,json}) => {
         }
     };
 
-    await axios.post(baseURL + "/post/", json, config)
-    return true;
+    const { data } = await axios.post(baseURL + "/post/", json, config)
+    return data;
 };

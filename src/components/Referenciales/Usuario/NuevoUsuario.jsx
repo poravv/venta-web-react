@@ -239,9 +239,10 @@ function NuevoUsuario({ token }) {
 
                 <Form.Item label='Nivel' id='nivel' name="nivel" rules={[{ required: true, message: 'Seleccione nivel', },]}>
                 <Radio.Group onChange={onchangenivel} value={nivel} id='nivel' name='nivel'>
-                        <Radio value={1}>Administrador</Radio>
-                        <Radio value={2}>Academico</Radio>
-                        <Radio value={3}>Instructor</Radio>
+                        <Radio value={0}>Root</Radio>
+                        <Radio value={1}>Sys Admin</Radio>
+                        <Radio value={2}>Vendedor</Radio>
+                        <Radio value={3}>Administrador</Radio>
                         {/*<Radio value={4}>Estudiante</Radio>*/}
                     </Radio.Group>
                 </Form.Item>

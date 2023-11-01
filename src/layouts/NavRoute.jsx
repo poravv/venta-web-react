@@ -24,6 +24,7 @@ import NuevoCliente from '../components/Referenciales/Cliente/NuevoCliente';
 import ListaVenta from '../components/Referenciales/Venta/ListaVenta';
 import NuevoVenta from '../components/Referenciales/Venta/NuevaVenta';
 import ListaVentaTotal from '../components/Referenciales/Venta/ListaVentaTotal';
+import NuevoArticuloProducto from '../components/Referenciales/ArticuloProducto/NuevoArticuloProducto';
 //import TableFormat from '../components/TableModel/Table';
 //import ReporteCalificaciones from '../components/Reportes/Calificaciones/Calificaciones';
 //import ReporteActa from '../components/Reportes/Acta/Acta';
@@ -59,6 +60,10 @@ function NavRoute({ usuario, sucursal }) {
                   #ProductoFinal
                   <Route path='/producto_final' element={<ListaProductoFinal token={usuario.token} />} />
                   <Route path='/crearproducto_final' element={<NuevoProductoFinal token={usuario.token} />} />
+
+                  #ArticuloProducto
+                  <Route path='/creararticuloproducto' element={<NuevoArticuloProducto token={usuario.token} />} />
+
                   #Inventario
                   <Route path='/inventario' element={<ListaInventario token={usuario.token} />} />
                   <Route path='/crearinventario' element={<NuevoInventario token={usuario.token} />} />
@@ -76,7 +81,6 @@ function NavRoute({ usuario, sucursal }) {
                   <Route path='/venta' element={<ListaVenta token={usuario.token} />} />
                   <Route path='/ventatotal' element={<ListaVentaTotal token={usuario.token} />} />
                   <Route path='/crearventa' element={<NuevoVenta token={usuario.token} />} />
-
                 </>
                 : null
             }

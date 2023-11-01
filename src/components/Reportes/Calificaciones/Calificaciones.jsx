@@ -46,7 +46,7 @@ function ReporteCalificaciones({ token }) {
         let arreglo = [];
         console.log(fecha1 ?? 0, fecha2 ?? 0, estado ?? 0)
         const res = await getConvocatoria({ token: token, anho1: fecha1 ?? 0, anho2: fecha2 ?? 0, estado: estado ?? 0 });
-        res.body.map((conv) => {
+        res?.body?.map((conv) => {
             arreglo.push(conv);
             return true;
         });
@@ -70,7 +70,7 @@ function ReporteCalificaciones({ token }) {
             try {
                 const res = await getReporteGral({ token: token, idconvocatoria: idconvocatoria });
                 console.log(res.body)
-                res.body.map((rep) => {
+                res?.body?.map((rep) => {
                     delete rep.idconvocatoria;
                     delete rep.idinscripcion;
                     delete rep.idpersona;
@@ -133,7 +133,7 @@ function ReporteCalificaciones({ token }) {
                 let descCurso = '', descTurno = '';
                 const res = await getReporteMat({ token: token, idconvocatoria: idconvocatoria, idmateria: idmateria });
                 //console.log(res.body);
-                res.body.map((rep) => {
+                res?.body?.map((rep) => {
                     descCurso = rep.curso;
                     descTurno = rep.turno;
                     delete rep.idinstructor;

@@ -157,7 +157,7 @@ function NuevoProductoFinal({ token }) {
     return (
         <div>
             <div style={{ marginBottom: `20px` }}>
-                <Titulos text={`NUEVA PRODUCTO`} level={3}></Titulos>
+                <Titulos text={`NUEVA PRODUCCION`} level={3}></Titulos>
             </div>
             <Form
                 initialValues={{ remember: true, }}
@@ -184,7 +184,6 @@ function NuevoProductoFinal({ token }) {
                             <Input type='number' placeholder='Costo' value={costo} onChange={(e) => setCosto(e.target.value)} />
                         </Form.Item>
                     </Col>
-
                     <Col style={{ minWidth: `25rem` }}>
                         <Form.Item label='Tipo impuesto' id='tipoIva' name="tipoIva" rules={[{ required: true, message: 'Seleccione tipo de impuesto', },]}>
                             <Radio.Group

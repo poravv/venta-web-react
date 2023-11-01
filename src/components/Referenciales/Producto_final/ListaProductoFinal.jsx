@@ -192,7 +192,7 @@ const ListaProductoFinal = ({ token }) => {
 
     return (
         <>
-            <Titulos text={`PRODUCTO`} level={3}></Titulos>
+            <Titulos text={`PRODUCCIONES`} level={3}></Titulos>
             <div style={{ marginBottom: `5px`, textAlign: `end` }}>
                 <Button type="primary" onClick={() => navigate('/crearproducto_final')} >{<PlusOutlined />} Nuevo</Button>
                 <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={()=>handleExport({data:productoFinal,title:'Producto final'})} size={20} /></Button>
