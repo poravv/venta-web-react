@@ -8,11 +8,11 @@ import {
     FolderOpenOutlined,
     UserOutlined
 } from '@ant-design/icons';
-import { Layout, Menu, Image,FloatButton } from 'antd';
+import { Layout, Menu, Image, FloatButton } from 'antd';
 import { Outlet } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import { Logout } from '../services/Login';
-import { IoCartOutline,IoCheckboxOutline } from "react-icons/io5";
+import { IoCartOutline, IoCheckboxOutline,IoAddCircle } from "react-icons/io5";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -51,16 +51,16 @@ const AppBar = ({ usuario, sucursal, nivel }) => {
                 getItem(() => navegacion('/usuario'), 'Usuarios', '2.1'),
                 getItem(() => navegacion('/ciudad'), 'Ciudad', '2.2'),
                 getItem(() => navegacion('/sucursal'), 'Sucursal', '2.3'),
-                getItem(() => navegacion('/proveedor'), 'Proveedor', '2.4'),
-                getItem(() => navegacion('/persona'), 'Personas', '2.5'),
+                getItem(() => navegacion('/persona'), 'Personas', '2.4'),
 
             ]) : null,
         nivel === 0 || nivel === 2 || nivel === 3 ?
             (
                 getItem(null, 'Vendedor', '3', <TeamOutlined />, [
-                    getItem(() => navegacion('/inventario'), 'Inventario', '3.1'),
-                    getItem(() => navegacion('/cliente'), 'Clientes', '3.2'),
-                    getItem(() => navegacion('/venta'), 'Ventas', '3.3'),
+                    getItem(() => navegacion('/proveedor'), 'Proveedor', '3.1'),
+                    getItem(() => navegacion('/inventario'), 'Inventario', '3.2'),
+                    getItem(() => navegacion('/cliente'), 'Clientes', '3.3'),
+                    getItem(() => navegacion('/venta'), 'Ventas', '3.4'),
                 ])
             ) : null,
         nivel === 0 || nivel === 3 ?
@@ -138,24 +138,36 @@ const AppBar = ({ usuario, sucursal, nivel }) => {
             <FloatButton
                 icon={<IoCartOutline />}
                 //type="default"
-                onClick={()=>navigate('/crearventa')}
+                onClick={() => navigate('/crearventa')}
                 shape="square"
                 description="Venta"
                 style={{
                     right: 80,
-                    width:`60px`
+                    width: `60px`
                 }}
             />
 
             <FloatButton
                 icon={<IoCheckboxOutline />}
                 //type="default"
-                onClick={()=>navigate('/inventario')}
+                onClick={() => navigate('/inventario')}
                 shape="square"
                 description="Inventario"
                 style={{
                     right: 160,
-                    width:`60px`
+                    width: `60px`
+                }}
+            />
+
+            <FloatButton
+                icon={<IoAddCircle />}
+                //type="default"
+                onClick={() => navigate('/articulo')}
+                shape="square"
+                description="Articulo"
+                style={{
+                    right: 240,
+                    width: `60px`
                 }}
             />
         </Layout>

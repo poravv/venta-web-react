@@ -25,16 +25,10 @@ import ListaVenta from '../components/Referenciales/Venta/ListaVenta';
 import NuevoVenta from '../components/Referenciales/Venta/NuevaVenta';
 import ListaVentaTotal from '../components/Referenciales/Venta/ListaVentaTotal';
 import NuevoArticuloProducto from '../components/Referenciales/ArticuloProducto/NuevoArticuloProducto';
-//import TableFormat from '../components/TableModel/Table';
-//import ReporteCalificaciones from '../components/Reportes/Calificaciones/Calificaciones';
-//import ReporteActa from '../components/Reportes/Acta/Acta';
-//import CertificadoEstudio from '../components/Reportes/Certificado/CertificadoEstudio';
-//import Certificado1ro from '../components/Reportes/Certificado1ro/Certificado1ro';
-//import ResolucionENA from '../components/Reportes/ResolucionEna/ResolucionENA';
-//import ResolucionENAModif from '../components/Reportes/ResolucionEnaModif/ResolucionENAModif';
-//import PBIP from '../components/Reportes/PBIP/PBIP';
 
 function NavRoute({ usuario, sucursal }) {
+
+ 
   return (
     <>
       <BrowserRouter>
@@ -48,41 +42,51 @@ function NavRoute({ usuario, sucursal }) {
                   #Ciudad
                   <Route path='/ciudad' element={<ListaCiudad token={usuario.token} />} />
                   <Route path='/crearciudad' element={<NuevoCiudad token={usuario.token} />} />
-                  #Proveedor
-                  <Route path='/proveedor' element={<ListaProveedor token={usuario.token} />} />
-                  <Route path='/crearproveedor' element={<NuevoProveedor token={usuario.token} />} />
                   #Sucursal
                   <Route path='/sucursal' element={<ListaSucursal idsucursal={usuario.body.idsucursal} token={usuario.token} />} />
                   <Route path='/crearsucursal' element={<NuevaSucursal idsucursal={usuario.body.idsucursal} idusuario={usuario.body.idusuario} token={usuario.token} />} />
-                  #Articulo
-                  <Route path='/articulo' element={<ListaArticulo token={usuario.token} />} />
-                  <Route path='/creararticulo' element={<NuevoArticulo token={usuario.token} />} />
-                  #ProductoFinal
-                  <Route path='/producto_final' element={<ListaProductoFinal token={usuario.token} />} />
-                  <Route path='/crearproducto_final' element={<NuevoProductoFinal token={usuario.token} />} />
-
-                  #ArticuloProducto
-                  <Route path='/creararticuloproducto' element={<NuevoArticuloProducto token={usuario.token} />} />
-
-                  #Inventario
-                  <Route path='/inventario' element={<ListaInventario token={usuario.token} />} />
-                  <Route path='/crearinventario' element={<NuevoInventario token={usuario.token} />} />
                   #Persona
                   <Route path='/persona' element={<ListaPersona token={usuario.token} />} />
                   <Route path='/crearpersona' element={<NuevoPersona token={usuario.token} />} />
-                  #Cliente
-                  <Route path='/cliente' element={<ListaCliente token={usuario.token} />} />
-                  <Route path='/crearcliente' element={<NuevoCliente token={usuario.token} />} />
+
                   #Usuario
                   <Route path='/usuario' element={<ListaUsuario token={usuario.token} />} />
                   <Route path='/crearusuario' element={<NuevoUsuario token={usuario.token} />} />
                   <Route path='/editarusuario' element={<EditarUsuario token={usuario.token} idusuario={usuario.body.idusuario} />} />
-                  #Venta
-                  <Route path='/venta' element={<ListaVenta token={usuario.token} />} />
-                  <Route path='/ventatotal' element={<ListaVentaTotal token={usuario.token} />} />
-                  <Route path='/crearventa' element={<NuevoVenta token={usuario.token} />} />
+
                 </>
                 : null
+            }
+            {(usuario.body.nivel === 3 || usuario.body.nivel === 2 || usuario.body.nivel === 0) ?
+              <>
+                #Proveedor
+                <Route path='/proveedor' element={<ListaProveedor token={usuario.token} />} />
+                <Route path='/crearproveedor' element={<NuevoProveedor token={usuario.token} />} />
+                #Inventario
+                <Route path='/inventario' element={<ListaInventario token={usuario.token} />} />
+                <Route path='/crearinventario' element={<NuevoInventario token={usuario.token} />} />
+                #Venta
+                <Route path='/venta' element={<ListaVenta token={usuario.token} />} />
+                <Route path='/ventatotal' element={<ListaVentaTotal token={usuario.token} />} />
+                <Route path='/crearventa' element={<NuevoVenta token={usuario.token} />} />
+                #Cliente
+                <Route path='/cliente' element={<ListaCliente token={usuario.token} />} />
+                <Route path='/crearcliente' element={<NuevoCliente token={usuario.token} />} />
+              </>
+              : null
+            }
+            {(usuario.body.nivel === 3 || usuario.body.nivel === 0) ?
+              <>
+                #Articulo
+                <Route path='/articulo' element={<ListaArticulo token={usuario.token} />} />
+                <Route path='/creararticulo' element={<NuevoArticulo token={usuario.token} />} />
+                #ProductoFinal
+                <Route path='/producto_final' element={<ListaProductoFinal token={usuario.token} />} />
+                <Route path='/crearproducto_final' element={<NuevoProductoFinal token={usuario.token} />} />
+                #ArticuloProducto
+                <Route path='/creararticuloproducto' element={<NuevoArticuloProducto token={usuario.token} />} />
+              </>
+              : null
             }
           </Route>
 

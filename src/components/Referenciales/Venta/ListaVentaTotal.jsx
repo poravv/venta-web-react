@@ -1,6 +1,6 @@
-import { useState,useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { handleExport } from '../../Utils/ExportXLS'
-import { Popconfirm, Typography } from 'antd';
+import { Popconfirm, Row, Typography } from 'antd';
 import { Form } from 'antd';
 import TableModelExpand from '../../TableModel/TableModelExpand';
 import { Tag } from 'antd';
@@ -9,32 +9,55 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { useNavigate } from "react-router-dom";
 import { RiFileExcel2Line } from "react-icons/ri";
-import { getVenta,updateVenta } from '../../../services/Venta';
-import {Titulos} from '../../Utils/Titulos';
-import {BuscadorTabla}  from '../../Utils/Buscador/BuscadorTabla';
+import { getVenta, updateVenta } from '../../../services/Venta';
+import { Titulos } from '../../Utils/Titulos';
+import { BuscadorTabla } from '../../Utils/Buscador/BuscadorTabla';
 import { agregarSeparadorMiles } from '../../Utils/separadorMiles';
+import { generaTicket } from '../../Reportes/Ticket/ExportTicketPdf';
+import FacturaTemplate from '../../Reportes/Factura/FacturaTemplate';
+import jsPDF from 'jspdf';
 
 const ListaVentaTotal = ({ token }) => {
     const [form] = Form.useForm();
     const [venta, setVenta] = useState([]);
     const [editingKey, setEditingKey] = useState('');
     const navigate = useNavigate();
+    const [checkFactura, setCheckFactura] = useState(false);
+    const [tmp_cabecera, setCabecera] = useState();
+    const [tmp_detalle, setDetalle] = useState();
+    const reportTemplateRef = useRef(null);
 
     useEffect(() => {
         getLstVenta();
         // eslint-disable-next-line
     }, []);
 
+    const handleGeneratePdf = () => {
+        const doc = new jsPDF({
+            format: 'legal',
+            unit: 'pt',
+            precision: 1,
+            compressPdf: true,
+            //orientation: 'l'
+        });
+
+        doc.html(reportTemplateRef.current, {
+            async callback(doc) {
+                await doc.save('document');
+            },
+        });
+    };
+
     const getLstVenta = async () => {
-        const array =[];
-        const res = await getVenta({token:token,param:'get'});
+        const array = [];
+        const res = await getVenta({ token: token, param: 'get' });
         //console.log(res.body);
-        res?.body.map((rs) =>{
-            rs.razon_social=rs?.cliente.razon_social;
-            rs.ruc=rs?.cliente.ruc;
-            rs.telefono=rs?.cliente.telefono;
-            rs.tipo_cli=rs?.cliente.tipo_cli;
-            rs.vendedor=rs?.usuario?.nick;
+        res?.body?.map((rs) => {
+            rs.razon_social = rs?.cliente.razon_social;
+            rs.ruc = rs?.cliente.ruc;
+            rs.telefono = rs?.cliente.telefono;
+            rs.tipo_cli = rs?.cliente.tipo_cli;
+            rs.vendedor = rs?.usuario?.nick;
             array.push(rs)
             return true;
         });
@@ -47,7 +70,18 @@ const ListaVentaTotal = ({ token }) => {
         getVenta();
         message.success('Procesando');
     }
-    
+
+    const generadorFactura = (venta_cab, venta_det) => {
+        setCabecera(venta_cab);
+        setDetalle(venta_det);
+        setCheckFactura(true)
+    }
+    const limpiarTodo = () => {
+        // eslint-disable-next-line
+        window.location.href = window.location.href;
+    }
+
+
     const columns = [
         {
             title: 'Cliente',
@@ -98,37 +132,45 @@ const ListaVentaTotal = ({ token }) => {
             sorter: (a, b) => a.vendedor.localeCompare(b.vendedor),
         },
         {
-             title: 'Estado',
-             dataIndex: 'estado',
-             //width: '7%',
-             editable: false,
-             render: (_, { estado, idventa }) => {
-                 let color = 'black';
-                 if (estado.toUpperCase() === 'AC') { color = 'green' }
-                 else { color = 'volcano'; }
-                 return (
-                     <Tag color={color} key={idventa} >
-                         {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
-                     </Tag>
-                 );
-             },
-         },
+            title: 'Estado',
+            dataIndex: 'estado',
+            //width: '7%',
+            editable: false,
+            render: (_, { estado, idventa }) => {
+                let color = 'black';
+                if (estado.toUpperCase() === 'AC') { color = 'green' }
+                else { color = 'volcano'; }
+                return (
+                    <Tag color={color} key={idventa} >
+                        {estado.toUpperCase() === 'AC' ? 'Activo' : 'Inactivo'}
+                    </Tag>
+                );
+            },
+        },
         {
             title: 'Acción',
             dataIndex: 'operacion',
             render: (_, record) => {
                 return <>
-                <Popconfirm
-                    title="Desea eliminar este registro?"
-                    onConfirm={() => confirmDel(record.idventa)}
-                    onCancel={cancel}
-                    okText="Si"
-                    cancelText="No" >
-                    <Typography.Link >
-                        Anular
+                    <Popconfirm
+                        title="Desea eliminar este registro?"
+                        onConfirm={() => confirmDel(record.idventa)}
+                        onCancel={cancel}
+                        okText="Si"
+                        cancelText="No" >
+                        <Typography.Link >
+                            Anular
+                        </Typography.Link>
+                    </Popconfirm>
+                    <br />
+                    <Typography.Link onClick={() => generaTicket({ cabecera: record, detalle: record?.det_venta })}>
+                        Ticket
                     </Typography.Link>
-                </Popconfirm>
-            </>;
+                    <br />
+                    <Typography.Link onClick={(e) => generadorFactura(record, record?.det_venta)}>
+                        Factura
+                    </Typography.Link>
+                </>;
             },
         }
     ];
@@ -136,11 +178,11 @@ const ListaVentaTotal = ({ token }) => {
     const columnDet = [
         {
             title: 'Producto',
-            dataIndex: 'descripcion',
+            dataIndex: 'nombre',
             width: '2%',
             render: (_, record) => {
                 //console.log(record)
-                return record?.producto_final?.descripcion;
+                return record?.producto_final?.nombre;
             },
         },
         {
@@ -205,13 +247,32 @@ const ListaVentaTotal = ({ token }) => {
 
     return (
         <>
-            <Titulos text={`VENTAS`} level={3}></Titulos>
-            <div style={{ marginBottom: `5px`, textAlign: `end` }}>
-                <Button type="primary" onClick={() => navigate('/crearventa')} >{<PlusOutlined />} Nuevo</Button>
-                <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={()=>handleExport({data:venta,title:'Producto final'})} size={20} /></Button>
-            </div>
-            <TableModelExpand columnDet={columnDet} keyDet={'idproducto_final'} token={token} mergedColumns={mergedColumns} data={venta} form={form} keyExtraido={'idventa'} />
-        </>
+        <Titulos text={`VENTAS`} level={3}></Titulos>
+        {checkFactura === false ?
+            <>
+                <div style={{ marginBottom: `5px`, textAlign: `end` }}>
+                    <Button type="primary" onClick={() => navigate('/crearventa')} >{<PlusOutlined />} Nuevo</Button>
+                    <Button type='primary' style={{ backgroundColor: `#08AF17`, margin: `2px` }}  ><RiFileExcel2Line onClick={() => handleExport({ data: venta, title: 'Producto final' })} size={20} /></Button>
+                </div>
+                <TableModelExpand columnDet={columnDet} keyDet={'idproducto_final'} token={token} mergedColumns={mergedColumns} data={venta} form={form} keyExtraido={'idventa'} />
+            </>
+            : <>
+                <div>
+                    <Row>
+                        <Button onClick={handleGeneratePdf} type="primary" htmlType="submit" style={{ margin: `10px`, backgroundColor: `#02A52F` }} >
+                            Descargar
+                        </Button>
+                        <Button type="primary" htmlType="submit" style={{ margin: `10px`, backgroundColor: `tomato` }} onClick={() => limpiarTodo()} >
+                            Limpiar
+                        </Button>
+                    </Row>
+                    <div ref={reportTemplateRef} >
+                        <FacturaTemplate tmp_cabecera={tmp_cabecera} tmp_detalle={tmp_detalle} />
+                    </div>
+                </div>
+            </>
+        }
+    </>
     )
 }
 export default ListaVentaTotal;

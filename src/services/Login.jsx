@@ -9,13 +9,13 @@ export const Login = async (credentials) => {
     if(data?.estado!=='error'){
         window.localStorage.setItem('loggedUser', JSON.stringify(data));
     }
-    
+    window.location.href='/'
     return data;
 }
 
 export const Logout = () => {
     window.localStorage.removeItem('loggedUser');
     // eslint-disable-next-line
-    window.location.href = window.location.href;
-    //window.location.href='/'
+    //window.location.href = window.location.href;
+    window.location.href='/'
 }

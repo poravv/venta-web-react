@@ -17,7 +17,7 @@ export const generaTicket = ({ cabecera, detalle }) => {
     var finalY = doc.lastAutoTable.finalY || 1
     
     doc.text(`Ticket`, 95, finalY + 10);
-    doc.text(`Número de factura: ${cabecera?.idventa}`, 10, finalY + 20);
+    doc.text(`Número de ticket: ${cabecera?.idventa}`, 10, finalY + 20);
     doc.text(`Fecha: ${cabecera?.fecha}`, 10, finalY+30);
     doc.text(`Cliente: ${cabecera?.razon_social}`, 10, finalY+40);
     doc.text(`Ruc: ${cabecera?.ruc}`, 10, finalY+50);

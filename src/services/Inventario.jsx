@@ -2,6 +2,21 @@ import axios from 'axios';
 
 const baseURL = process.env.REACT_APP_API_URL+'/inventario';
 
+
+export const getAnalisisInv = async ({token,param}) => {
+    //CONFIGURACION DE TOKEN
+    const config = {
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        }
+    };
+    //const { data } = await axios.get(baseURL, credentials);
+    const { data } = await axios.get(`${baseURL}/getsql`, config);
+    //console.log(data);
+    return data;
+};
+
+
 export const getInventario = async ({token,param}) => {
     //CONFIGURACION DE TOKEN
     const config = {

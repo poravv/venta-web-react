@@ -11,6 +11,9 @@ import { createVenta, createVentaDet, operacionVenta } from '../../../services/V
 import { Titulos } from '../../Utils/Titulos';
 import { agregarSeparadorMiles } from '../../Utils/separadorMiles';
 import { generaTicket } from '../../Reportes/Ticket/ExportTicketPdf';
+import FacturaTemplate from '../../Reportes/Factura/FacturaTemplate';
+import { useRef } from 'react';
+import jsPDF from 'jspdf';
 let fechaActual = new Date();
 
 function NuevoVenta({ token }) {
@@ -28,9 +31,29 @@ function NuevoVenta({ token }) {
     const [totalIva, setTotalIva] = useState(0);
     const [descuento, setDescuento] = useState(0);
     const [vuelto, setVuelto] = useState(0);
+    const [tmp_cabecera, setCabecera] = useState([]);
+    const [tmp_detalle, setDetalle] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [checkTicket, setCheckTicket] = useState(false);
+    const [checkFactura, setCheckFactura] = useState(false);
+    const [genFact, setGenFact] = useState(false);
+    const reportTemplateRef = useRef(null);
 
+    const handleGeneratePdf = () => {
+        const doc = new jsPDF({
+            format: 'legal',
+            unit: 'pt',
+            precision: 1,
+            compressPdf: true,
+            //orientation: 'l'
+        });
+
+        doc.html(reportTemplateRef.current, {
+            async callback(doc) {
+                await doc.save('document');
+            },
+        });
+    };
 
     const showModal = () => {
         setIsModalOpen(true);
@@ -47,6 +70,11 @@ function NuevoVenta({ token }) {
         setCheckTicket(e.target.checked)
     };
 
+    const handleCheckFactura = (e) => {
+        //console.log(`checked = ${e.target.checked}`);
+        setCheckFactura(e.target.checked)
+    };
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -60,6 +88,11 @@ function NuevoVenta({ token }) {
         setVuelto(parseInt(e.target.value) - parseInt(total))
     }
 
+    const limpiarTodo = () => {
+        // eslint-disable-next-line
+        window.location.href = window.location.href;
+    }
+
 
     const ventanaCobro = () => {
         return (
@@ -71,6 +104,7 @@ function NuevoVenta({ token }) {
                 <Form layout="vertical">
                     <Row>
                         <Checkbox onChange={handleCheckTicket}>Imprimir ticket</Checkbox>
+                        <Checkbox onChange={handleCheckFactura}>Ver factura</Checkbox>
                     </Row>
                     <Row style={{ textAlign: `center`, justifyContent: `center` }}>
                         <Col>
@@ -120,7 +154,6 @@ function NuevoVenta({ token }) {
 
     const guardaVentaCab = async (valores) => {
         return await createVenta({ token: token, json: valores });
-        //navigate('/venta');
     }
 
     const guardaVentaDet = async (valores) => {
@@ -145,7 +178,7 @@ function NuevoVenta({ token }) {
             //console.log(cabecera)
             cabecera.body.razon_social = clienteSelected.razon_social;
             cabecera.body.ruc = clienteSelected.ruc;
-            
+
             if (cabecera.estado !== 'error') {
                 tblventatmp.map((detventa) => {
                     guardaVentaDet({
@@ -174,8 +207,9 @@ function NuevoVenta({ token }) {
 
                 handleOk()
                 if (checkTicket) { generaTicket({ cabecera: cabecera.body, detalle: tblventatmp }) }
-                navigate('/venta');
-
+                setCabecera(cabecera.body)
+                setDetalle(tblventatmp)
+                //navigate('/venta');
             } else {
                 message.error(cabecera?.mensaje);
             }
@@ -315,128 +349,153 @@ function NuevoVenta({ token }) {
                 //Ventana de vuelteo
                 ventanaCobro()
             }
-            <Form
-                initialValues={{ remember: true, }}
-                //onFinish={gestionGuardado}
-                autoComplete="off"
-                name="basic"
-                layout="vertical"
-                style={{ textAlign: `center`, margin: `15px` }}
-                form={form} >
-                <Divider orientation="center" type="horizontal" style={{ color: `#747E87` }}>Cabecera</Divider>
-                <Row >
-                    <Col style={{ minWidth: `25rem` }}>
-                        <Form.Item
-                            label='Cliente'
-                            rules={[{ required: true, message: 'Seleccione cliente', },]}>
-                            <Input id='idcliente' hidden name='idcliente' disabled value={idcliente} />
-                            <Buscador label={'descripcion'} title={'Cliente'} selected={idcliente} value={'idcliente'} data={lstCliente} onChange={onChangeCliente} onSearch={onSearch} />
-                        </Form.Item>
-                    </Col>
-                    <Col style={{ minWidth: `25rem` }}>
-                        <Form.Item
-                            label='Cliente'
-                            rules={[{ required: true, message: 'Seleccione cliente', },]}>
-                            <Input id='cliente' name='cliente' disabled value={(clienteSelected?.descripcion)} />
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Divider orientation="center" type="horizontal" style={{ color: `#747E87`, marginLeft: `0px`, marginTop: `0px` }}>Detalle</Divider>
-                <Row>
-                    <Col style={{ minWidth: `25rem` }}>
-                        <Form.Item
-                            label='Producto'
-                            rules={[{ required: true, message: 'Seleccione producto', },]}>
-                            {idproducto_final ?
-                                <Input id='idproducto' name='idproducto' disabled value={idproducto_final} />
-                                : null}
-                            <Buscador label={'nombre'} title={'Producto'} selected={idproducto_final} value={'idproducto_final'} data={lstProductoFinal} onChange={onChangeProductoFinal} onSearch={onSearch} />
-                        </Form.Item>
-                    </Col>
-                    <Col style={{ minWidth: `25rem` }}>
-                        <Form.Item label="Cantidad de productos" name="cantidad" id="cantidad">
-                            <Input type='number' placeholder='Cantidad de productos' value={cantidad} onChange={(e) => setCantidad(e.target.value)} />
-                        </Form.Item>
-                    </Col>
-                    <Col style={{ minWidth: `25rem` }}>
-                        <Form.Item label="Descuento" name="descuento" id="descuento">
-                            <Input type='number' placeholder='Descuento' value={descuento} onChange={(e) => setDescuento(e.target.value)} />
-                        </Form.Item>
-                    </Col>
-                </Row>
-                <Row style={{ justifyContent: `center` }}>
-                    <Col style={{ marginBottom: `10px` }}>
-                        <Button type="primary" htmlType="submit" ghost onClick={(e) => agregarLista(e)} >
-                            Agregar
-                        </Button>
-                    </Col>
-                </Row>
-                <Row style={{ alignItems: `center`, justifyContent: `center`, margin: `0px`, display: `flex` }}>
-                    <Table style={{ backgroundColor: `white` }}>
-                        <thead style={{ backgroundColor: `#03457F`, color: `white` }}>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Costo</th>
-                                <th>Cantidad</th>
-                                <th>Descuento</th>
-                                <th>Iva</th>
-                                <th>Monto Iva</th>
-                                <th>Subtotal iva</th>
-                                <th>Subtotal</th>
-                                <th>Accion</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {tblventatmp.length !== 0 ? tblventatmp.map((inv) => (
-                                <tr key={inv.idproducto_final}>
-                                    <td> {inv.producto_final.nombre} </td>
-                                    <td> {inv.producto_final.costo} </td>
-                                    <td> {inv.cantidad} </td>
-                                    <td> {inv.descuento} </td>
-                                    <td> {inv.producto_final.tipo_iva + '%'} </td>
-                                    <td> {inv.producto_final.monto_iva} </td>
-                                    <td> {inv.producto_final.monto_iva * inv.cantidad} </td>
-                                    <td> {inv.producto_final.costo * inv.cantidad} </td>
-                                    <td>
-                                        <button onClick={(e) => extraerRegistro(e, inv.idproducto_final, (inv.producto_final.costo - inv.descuento), inv.producto_final.monto_iva)} className='btn btn-danger'><IoTrashOutline /></button>
-                                    </td>
-                                </tr>
-                            )) : null
-                            }
-                        </tbody>
-                        <tfoot >
-                            <tr>
-                                <th>Total</th>
-                                <th style={{ textAlign: `start` }} colSpan={7}>
-                                    <b>{total}</b>
-                                </th>
-                            </tr>
-                            <tr>
-                                <th>Total iva</th>
-                                <th style={{ textAlign: `start` }} colSpan={7}>
-                                    <b>{totalIva}</b>
-                                </th>
-                            </tr>
-                        </tfoot>
-                    </Table>
-                    <Col>
-                        <Button type="primary" htmlType="submit" style={{ margin: `10px` }} onClick={() => showModal()} >
-                            Procesar
-                        </Button>
-                        <Popconfirm
-                            title="Esta seguro que desea cancelar?"
-                            onConfirm={btnCancelar}
-                            //onCancel={cancel}
-                            okText="Si"
-                            cancelText="No" >
-                            <Button type="primary" danger ghost htmlType="submit"  >
-                                Cancelar
-                            </Button>
-                        </Popconfirm>
+            {
+                checkFactura === false ?
+                    <Form
+                        initialValues={{ remember: true, }}
+                        //onFinish={gestionGuardado}
+                        autoComplete="off"
+                        name="basic"
+                        layout="vertical"
+                        style={{ textAlign: `center`, margin: `15px` }}
+                        form={form} >
+                        <Divider orientation="center" type="horizontal" style={{ color: `#747E87` }}>Cabecera</Divider>
+                        <Row >
+                            <Col style={{ minWidth: `25rem` }}>
+                                <Form.Item
+                                    label='Cliente'
+                                    rules={[{ required: true, message: 'Seleccione cliente', },]}>
+                                    <Input id='idcliente' hidden name='idcliente' disabled value={idcliente} />
+                                    <Buscador label={'descripcion'} title={'Cliente'} selected={idcliente} value={'idcliente'} data={lstCliente} onChange={onChangeCliente} onSearch={onSearch} />
+                                </Form.Item>
+                            </Col>
+                            <Col style={{ minWidth: `25rem` }}>
+                                <Form.Item
+                                    label='Cliente'
+                                    rules={[{ required: true, message: 'Seleccione cliente', },]}>
+                                    <Input id='cliente' name='cliente' disabled value={(clienteSelected?.descripcion)} />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Divider orientation="center" type="horizontal" style={{ color: `#747E87`, marginLeft: `0px`, marginTop: `0px` }}>Detalle</Divider>
+                        <Row>
+                            <Col style={{ minWidth: `25rem` }}>
+                                <Form.Item
+                                    label='Producto'
+                                    rules={[{ required: true, message: 'Seleccione producto', },]}>
+                                    {idproducto_final ?
+                                        <Input id='idproducto' name='idproducto' disabled value={idproducto_final} />
+                                        : null}
+                                    <Buscador label={'nombre'} title={'Producto'} selected={idproducto_final} value={'idproducto_final'} data={lstProductoFinal} onChange={onChangeProductoFinal} onSearch={onSearch} />
+                                </Form.Item>
+                            </Col>
+                            <Col style={{ minWidth: `25rem` }}>
+                                <Form.Item label="Cantidad de productos" name="cantidad" id="cantidad">
+                                    <Input type='number' placeholder='Cantidad de productos' value={cantidad} onChange={(e) => setCantidad(e.target.value)} />
+                                </Form.Item>
+                            </Col>
+                            <Col style={{ minWidth: `25rem` }}>
+                                <Form.Item label="Descuento" name="descuento" id="descuento">
+                                    <Input type='number' placeholder='Descuento' value={descuento} onChange={(e) => setDescuento(e.target.value)} />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row style={{ justifyContent: `center` }}>
+                            <Col style={{ marginBottom: `10px` }}>
+                                <Button type="primary" htmlType="submit" ghost onClick={(e) => agregarLista(e)} >
+                                    Agregar
+                                </Button>
+                            </Col>
+                        </Row>
+                        <Row style={{ alignItems: `center`, justifyContent: `center`, margin: `0px`, display: `flex` }}>
+                            <Table style={{ backgroundColor: `white` }}>
+                                <thead style={{ backgroundColor: `#03457F`, color: `white` }}>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Costo</th>
+                                        <th>Cantidad</th>
+                                        <th>Descuento</th>
+                                        <th>Iva</th>
+                                        <th>Monto Iva</th>
+                                        <th>Subtotal iva</th>
+                                        <th>Subtotal</th>
+                                        <th>Accion</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {tblventatmp.length !== 0 ? tblventatmp.map((inv) => (
+                                        <tr key={inv.idproducto_final}>
+                                            <td> {inv.producto_final.nombre} </td>
+                                            <td> {inv.producto_final.costo} </td>
+                                            <td> {inv.cantidad} </td>
+                                            <td> {inv.descuento} </td>
+                                            <td> {inv.producto_final.tipo_iva + '%'} </td>
+                                            <td> {inv.producto_final.monto_iva} </td>
+                                            <td> {inv.producto_final.monto_iva * inv.cantidad} </td>
+                                            <td> {inv.producto_final.costo * inv.cantidad} </td>
+                                            <td>
+                                                <button onClick={(e) => extraerRegistro(e, inv.idproducto_final, (inv.producto_final.costo - inv.descuento), inv.producto_final.monto_iva)} className='btn btn-danger'><IoTrashOutline /></button>
+                                            </td>
+                                        </tr>
+                                    )) : null
+                                    }
+                                </tbody>
+                                <tfoot >
+                                    <tr>
+                                        <th>Total</th>
+                                        <th style={{ textAlign: `start` }} colSpan={7}>
+                                            <b>{total}</b>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <th>Total iva</th>
+                                        <th style={{ textAlign: `start` }} colSpan={7}>
+                                            <b>{totalIva}</b>
+                                        </th>
+                                    </tr>
+                                </tfoot>
+                            </Table>
+                            <Col>
+                                <Button type="primary" htmlType="submit" style={{ margin: `10px` }} onClick={() => showModal()} >
+                                    Procesar
+                                </Button>
+                                <Popconfirm
+                                    title="Esta seguro que desea cancelar?"
+                                    onConfirm={btnCancelar}
+                                    //onCancel={cancel}
+                                    okText="Si"
+                                    cancelText="No" >
+                                    <Button type="primary" danger ghost htmlType="submit"  >
+                                        Cancelar
+                                    </Button>
+                                </Popconfirm>
 
-                    </Col>
-                </Row>
-            </Form>
+                            </Col>
+                        </Row>
+                    </Form>
+                    : <>
+                        <div>
+                            <Row>
+                                <Button type="primary" htmlType="submit" disabled={genFact} onClick={() => setGenFact(true)} style={{ margin: `10px` }} >
+                                    Generar
+                                </Button>
+                                <Button disabled={!genFact} onClick={handleGeneratePdf} type="primary" htmlType="submit" style={{ margin: `10px`, backgroundColor: `#02A52F` }} >
+                                    Descargar
+                                </Button>
+                                <Button type="primary" htmlType="submit" style={{ margin: `10px`, backgroundColor: `tomato` }} onClick={() => limpiarTodo()} >
+                                    Limpiar
+                                </Button>
+                            </Row>
+                            {genFact === true ?
+                                <div ref={reportTemplateRef} >
+                                    <FacturaTemplate tmp_cabecera={tmp_cabecera} tmp_detalle={tmp_detalle} />
+                                </div>
+                                : null}
+
+                        </div>
+                    </>
+            }
+
         </div>
     );
 }
