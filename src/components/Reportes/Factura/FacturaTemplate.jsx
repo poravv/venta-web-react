@@ -26,6 +26,7 @@ const FacturaTemplate = ({ tmp_cabecera, tmp_detalle }) => {
             }
             return true;
         });
+
         setExcenta(tmp_excenta);
         setIva5(tmp_iva5);
         setIva10(tmp_iva10);
